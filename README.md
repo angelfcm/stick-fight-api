@@ -1,2 +1,2 @@
-# quizz-fight-api
-API for Prize Ranking Game
+# stick-fight-api
+API for Stick Fight Game
