@@ -1,0 +1,126 @@
+service: stick-fight-api
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-plugin-typescript
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    port: ${env:offline_port}
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: ${env:region}
+  profile: ${env:profile}
+  stage: ${env:stage}
+
+functions:
+  # RANKING SERVICE
+  indexRanking:
+    handler: src/services/ranking/handler.indexRanking
+    events:
+    - http:
+        path: ranking/{mode}
+        method: get
+        cors: true
+  showUserScore:
+    handler: src/services/ranking/handler.showUserScore
+    events:
+    - http:
+        path: ranking/{mode}/{username}
+        method: get
+        cors: true
+  updateMeScore:
+    handler: src/services/ranking/handler.updateMeScore
+    events:
+    - http:
+        path: ranking/me/score
+        method: put
+        cors: true
+  showUserCredits:
+    handler: src/services/ranking/handler.showUserCredits
+    events:
+    - http:
+        path: users/{username}/credits
+        method: get
+        cors: true
+  resetRanking:
+    handler: src/services/ranking/handler.resetRanking
+    events:
+    - http:
+        path: ranking/{mode}/reset
+        method: post
+        cors: true 
+    - schedule:
+        rate: cron(0 12 * * ? *) # 12pm every day.
+        enabled: true
+        input:
+          mode: daily
+          stageParams:
+            stage: ${env:stage}
+    - schedule:
+        rate: cron(0 12 ? * MON *) # 12pm every monday.
+        enabled: true
+        input:
+          mode: weekly
+          stageParams:
+            stage: ${env:stage}
+    - schedule:
+        rate: cron(0 12 1 * ? *) # 12pm first day every month.
+        enabled: true
+        input:
+          mode: monthly
+          stageParams:
+            stage: ${env:stage}
+  # LEVELS SERVICE
+  createLevel:
+    handler: src/services/levels/handler.createLevel
+    events:
+    - http:
+        path: levels
+        method: post
+        cors: true
+  indexLevels:
+    handler: src/services/levels/handler.indexLevels
+    events:
+    - http:
+        path: levels-search
+        method: get
+        cors: true
+  searchLevels:
+    handler: src/services/levels/handler.indexLevels
+    events:
+    - http:
+        path: levels-search/{search_text}
+        method: get
+        cors: true
+  showLevel:
+    handler: src/services/levels/handler.showLevel
+    events:
+    - http:
+        path: levels/{id}
+        method: get
+        cors: true
+  updateLevel:
+    handler: src/services/levels/handler.updateLevel
+    events:
+    - http:
+        path: levels/{id}
+        method: put
+        cors: true
+  setMeLevelStars:
+    handler: src/services/levels/handler.setMeLevelStars
+    events:
+    - http:
+        path: levels/{id}/me/stars
+        method: put
+        cors: true
+  addMeLevelPlayed:
+    handler: src/services/levels/handler.addLevelPlayed
+    events:
+    - http:
+        path: levels/{id}/played
+        method: post
+        cors: true

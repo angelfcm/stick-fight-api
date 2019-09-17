@@ -1,0 +1,19 @@
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
+
+# DynamoDB local
+.dynamodb
+
+# Environments
+.env.dev
+.env.prod
+
+# Builds
+.build
+
+# System Files
+.DS_Store

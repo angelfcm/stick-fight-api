@@ -1,0 +1,441 @@
+openapi: 3.0.0
+servers:
+  - url: https://4tv2mdoyz9.execute-api.us-west-2.amazonaws.com/dev
+info:
+  description: Stick Fight API
+  version: "1.0.0"
+  title: Stick Fight API
+  contact:
+    email: angelfcm1@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: RankingService
+    description: Ranking calls.
+  - name: LevelsService
+    description: Levels calls.
+paths:
+  /ranking/{mode}:
+    get:
+      tags:
+        - RankingService
+      summary: Get ranking.
+      operationId: indexRanking
+      description: Get ranking by current day, week or month, or since ever (default).
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - $ref: '#/components/parameters/rankingModeParam'
+      responses:
+        '206':
+          description: Paginated ranking list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '422':
+          description: Some parameter is invalid.
+  /ranking/{mode}/{username}:
+    get:
+      tags:
+        - RankingService
+      summary: Get user score.
+      operationId: showUserScore
+      description: Get user score by passsing its id.
+      parameters:
+        - $ref: '#/components/parameters/usernameParam'
+        - $ref: '#/components/parameters/rankingModeParam'
+      responses:
+        '200':
+          description: User score.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    type: integer
+                    example: 2560
+        '404':
+          description: User not found.
+  /ranking/me/score:
+    put:
+      tags:
+        - RankingService
+      summary: Set user score.
+      operationId: setMeScore
+      description: Set score to user if this is greater than current score.
+      responses:
+        '200':
+          description: New user score. Note that if requested score is less than current score then it won't be affected and will return the old score.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    type: integer
+                    example: 2560
+        '404':
+          description: User not found.
+        '422':
+          description: New score is invalid.
+      requestBody:
+        description: New score, must be integer and greater than zero.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: angelci
+                  description: Current user's username.
+                score:
+                  type: integer
+                  example: 3500
+  /ranking/{mode}/reset:
+    post:
+      tags:
+        - RankingService
+      summary: Reset desired ranking for all users.
+      operationId: resetRanking
+      parameters:
+        - $ref: '#/components/parameters/rankingModeParam'
+      responses:
+        '200':
+          description: Operation completed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    type: integer
+                    example: 120
+        '422':
+          description: Invalid mode.
+  /levels:
+    post:
+      tags:
+        - LevelsService
+      summary: Create a level.
+      operationId: createLevel
+      responses:
+        '204':
+          description: Level successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/Level'
+        '422':
+          description: Validation error.
+      requestBody:
+        description: Level optional attributes to create a level.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LevelInput'
+  /levels/{id}:
+    get:
+      tags:
+        - LevelsService
+      summary: Get level information with its map data.
+      operationId: showLevel
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Level information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/Level'
+        '404':
+          description: Level not found.
+    put:
+      tags:
+        - LevelsService
+      summary: Update a level.
+      operationId: updateLevel
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Level successfully updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/Level'
+        '422':
+          description: Validation error.
+      requestBody:
+        description: Level optional attributes to update a level.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LevelUpdateInput'
+  /levels/{id}/me/stars:
+    put:
+      tags:
+        - LevelsService
+      summary: Set level stars.
+      operationId: setMeLevelStars
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Level successfully updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/Level'
+        '422':
+          description: Validation error.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: 
+                - username
+                - stars
+              properties:
+                username:
+                  type: string
+                  example: angelci
+                  description: Current user's username.
+                stars:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 4
+  /levels/{id}/played:
+    post:
+      tags:
+        - LevelsService
+      summary: Add one more time that this level was played.
+      operationId: addLevelPlayed
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Level successfully updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/Level'
+        '422':
+          description: Validation error.
+  /levelssearch/{search_text}:
+    get:
+      tags:
+        - LevelsService
+      summary: Search all matched levels by given title, you can let an empty search to get all levels ordered by score and date.
+      operationId: indexLevels
+      parameters:
+        - in: path
+          name: search_text
+          description: Search text that matches with level titles. Let empty to find all levels ordered by score and date.
+          required: true
+          schema:
+            type: string
+            example: hardest level
+      responses:
+        '200':
+          description: Level information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Level'
+components:
+  parameters:
+    pageParam:
+      in: query
+      name: page
+      description: >
+        Number of page you want to see.
+      schema:
+        type: number
+        example: 1
+    pageSizeParam:
+      in: query
+      name: page_size
+      description: >
+        Size of results you want peer page.
+      schema:
+        type: number
+        example: 12
+    idParam:
+      in: path
+      name: id
+      description: Resource id.
+      required: true
+      schema:
+        $ref: '#/components/schemas/id'
+    usernameParam:
+      in: path
+      name: username
+      description: Provider username.
+      required: true
+      schema:
+        $ref: '#/components/schemas/username'
+    rankingModeParam: 
+      in: path
+      name: mode
+      description: Filter user score by specified time.
+      required: true
+      schema:
+        type: string
+        enum: [daily, weekly, monthly, always]
+  schemas:
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: number
+          example: 1
+        page_size:
+          type: number
+          example: 12
+        has_more:
+          type: boolean
+          example: true
+    User:
+      type: object
+      properties:
+        username:
+          $ref: '#/components/schemas/username'
+        score:
+          type: number
+          example: 2560
+        updated_at:
+          $ref: '#/components/schemas/date'
+    Level:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+        title:
+          type: string
+          example: Level 1
+        created_by:
+          type: string
+          example: angelci
+        times_played:
+          type: integer
+          example: 4
+        stars:
+          type: string
+          example: 5
+        data:
+          type: string
+          format: json
+          example: { "terrain": [], "enemies": [], "objects": [] }
+        created_at:
+          $ref: '#/components/schemas/date'
+        updated_at:
+          $ref: '#/components/schemas/date'
+    LevelInput:
+      type: object
+      required: 
+        - title
+        - created_by
+        - data
+      properties:
+        title:
+          type: string
+          example: Level 1
+        created_by:
+          type: string
+          example: angelci
+        data:
+          type: string
+          format: json
+          example: { "terrain": [], "enemies": [], "objects": [] }
+    LevelUpdateInput:
+      type: object
+      required: 
+        - title
+        - data
+      properties:
+        title:
+          type: string
+          example: Level 1
+        data:
+          type: string
+          format: json
+          example: { "terrain": [], "enemies": [], "objects": [] }
+    username:
+      type: string
+      format: string
+      example: 'Master Chief 117'
+    date:
+      type: string
+      format: 'ISO-8601'
+      example: '2011-10-05T14:48:00.000Z'
+    id:
+      type: string
+      format: 'uuid'
+      example: '5d77fd9a3dcb9b413c017635'
