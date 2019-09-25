@@ -1,32 +1,10 @@
 import validator from "validator";
 import app, { IAppContext } from "../../core/app";
 import { paginationSizes, rankingModeCodes, winnerCredits } from "../../core/constants";
-import ResponseBuilder from "../../core/ResponseBuilder";
 import Level from "../../models/Level";
 import Review from "../../models/Review";
 import User from "../../models/User";
 import levelResource from "../../resources/levelResource";
-
-function validateRankingMode(
-    __: (text: string, ...params: string[]) => string,
-    response: ResponseBuilder,
-    mode: string,
-) {
-    if (!Object.values(rankingModeCodes).includes(mode)) {
-        if (response) {
-            response.error(
-                "ranking",
-                __(
-                    "% must be within: %.",
-                    __("Ranking mode"),
-                    Object.values(rankingModeCodes).join(", "),
-                ),
-            );
-        }
-        return false;
-    }
-    return true;
-}
 
 export const createLevel = app(async (appContext: IAppContext) => {
     const { __, response, fields } = appContext;
@@ -49,9 +27,10 @@ export const createLevel = app(async (appContext: IAppContext) => {
     if (!user) {
         user = await User.create({ username: created_by });
     }
+    const levelDataFixed = typeof levelData === "string" ? levelData : JSON.stringify(levelData);
     const level = await Level.create({
         created_by: user,
-        data: levelData,
+        data: levelDataFixed,
         title,
     });
     const data = await levelResource(level);
@@ -98,7 +77,9 @@ export const updateLevel = app(async (appContext: IAppContext) => {
         level.title = title;
     }
     if (levelData !== undefined) {
-        level.data = levelData;
+        const levelDataFixed =
+            typeof levelData === "string" ? levelData : JSON.stringify(levelData);
+        level.data = levelDataFixed;
     }
     await level.save();
     const data = await levelResource(level);
