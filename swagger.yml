@@ -280,7 +280,7 @@ paths:
                     $ref: '#/components/schemas/Level'
         '422':
           description: Validation error.
-  /levelssearch/{search_text}:
+  /levels-search/{search_text}:
     get:
       tags:
         - LevelsService
@@ -293,7 +293,9 @@ paths:
           required: true
           schema:
             type: string
-            example: hardest level
+            example: my level name
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
       responses:
         '200':
           description: Level information.

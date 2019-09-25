@@ -200,6 +200,8 @@ export const indexLevels = app(async ({ __, response, queryParameters, pathParam
         sort.score = {
             $meta: "textScore",
         };
+    } else {
+        sort.stars = -1;
     }
     sort.created_at = -1;
     const query: any = [
@@ -215,6 +217,17 @@ export const indexLevels = app(async ({ __, response, queryParameters, pathParam
             },
         },
         {
+            $addFields: {
+                stars: {
+                    $cond: [
+                        { $gt: [{ $size: "$reviews" }, 0] },
+                        { $divide: [{ $sum: "$reviews.score" }, { $size: "$reviews" }] },
+                        0,
+                    ],
+                },
+            },
+        },
+        {
             $sort: sort,
         },
         { $unwind: "$created_by" },
@@ -226,6 +239,7 @@ export const indexLevels = app(async ({ __, response, queryParameters, pathParam
                 created_at: 1,
                 created_by: "$created_by.username",
                 id: "$_id",
+                stars: 1,
                 times_played: 1,
                 title: 1,
                 updated_at: 1,
