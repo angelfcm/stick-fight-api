@@ -21,7 +21,7 @@ export default async function levelResource(level: any) {
         created_at: level.created_at,
         created_by: createdBy,
         data: level.data ? JSON.parse(level.data) : level.data,
-        id: level._id,
+        id: level.id,
         stars: level.stars,
         times_played: level.times_played,
         title: level.title,
