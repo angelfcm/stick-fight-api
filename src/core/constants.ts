@@ -18,3 +18,9 @@ export const winnerCredits = {
     MONTHLY: 30,
     WEEKLY: 7,
 };
+
+export const levelsSortMode = {
+    PLAYED: "played",
+    RATED: "rated",
+    RECENT: "recent",
+};

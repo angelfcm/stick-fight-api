@@ -26,4 +26,5 @@ export default {
     Level: "El nivel",
     "Level id": "El id del nivel",
     Stars: "El campo de estrellas",
+    "Sort mode": "El modo de ordenamiento",
 };
