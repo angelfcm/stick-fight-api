@@ -296,6 +296,13 @@ paths:
             example: my level name
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/pageSizeParam'
+        - in: query
+          name: sort_mode
+          description: Order levels by specified sort mode.
+          required: false
+          schema:
+            type: string
+            enum: ['recent', 'rated', 'played']
       responses:
         '200':
           description: Level information.
