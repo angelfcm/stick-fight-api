@@ -197,12 +197,16 @@ export const indexLevels = app(async ({ __, response, queryParameters, pathParam
     }
 
     if (searchText) {
-        filter.$text = {
+        /*filter.$text = {
             $diacriticSensitive: true,
             $search: searchText,
         };
         sort.score = {
             $meta: "textScore",
+        };*/
+        // Search method replaced by simple $regex due $text search is unable to match words with more chars around them.
+        filter.title = {
+            $regex: RegExp(searchText, "i"),
         };
     } else {
         sort.stars = -1;
