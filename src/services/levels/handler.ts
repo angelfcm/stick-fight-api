@@ -197,6 +197,8 @@ export const indexLevels = app(async ({ __, response, queryParameters, pathParam
     }
 
     if (searchText) {
+        // Required to deployed project due special chars are not auto unescaped.
+        const searchTextFixed = unescape(searchText);
         /*
         filter.$text = {
             $diacriticSensitive: true,
@@ -207,8 +209,8 @@ export const indexLevels = app(async ({ __, response, queryParameters, pathParam
         };
         */
         // Search method replaced by simple $regex due $text search is unable to match words with more chars around them.
-        const regexps = searchText
-            .replace(/( ){2,}/g, " ")
+        const regexps = searchTextFixed
+            .replace(/( |%20){2,}/g, " ")
             .split(" ")
             .map((w: string) => {
                 return { title: { $regex: RegExp(w, "i") } };
