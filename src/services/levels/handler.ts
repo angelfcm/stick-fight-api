@@ -93,10 +93,12 @@ export const setMeLevelStars = app(async (appContext: IAppContext) => {
     const level = validator.isMongoId(levelId)
         ? ((await Level.findById(levelId)) as any)
         : undefined;
-    if (!level) {
-        return response.error("id", __("% was not found.", __("Level"))).statusCode(404);
+    if (!username) {
+        response.error("id", __("% was not found.", __("Username"))).statusCode(404);
     }
-    if (!validator.isInt(stars.toString())) {
+    if (!stars) {
+        response.error("stars", __("% is required.", __("Stars")));
+    } else if (!validator.isInt(stars.toString())) {
         response.error("stars", __("% must be an integer.", __("Stars")));
     } else if (stars < 1 || stars > 5) {
         response.error("stars", __("% must be between % and %.", __("Stars"), "1", "5"));
