@@ -77,7 +77,7 @@ export default function app(...lambdas: AppLambdaType[]) {
         appContext.__ = (text: string, ...params: any) => translator.translate(text, ...params);
         // Try to convert json input to fields or form request to fields.
         const contentType = getEventContentType(event);
-        if (contentType.startsWith("application/json")) {
+        if (contentType && contentType.startsWith("application/json")) {
             try {
                 appContext.fields = JSON.parse(event.body || "{}");
             } catch (err) {
