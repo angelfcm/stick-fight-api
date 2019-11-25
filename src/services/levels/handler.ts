@@ -94,7 +94,7 @@ export const setMeLevelStars = app(async (appContext: IAppContext) => {
         ? ((await Level.findById(levelId)) as any)
         : undefined;
     if (!username) {
-        response.error("id", __("% was not found.", __("Username"))).statusCode(404);
+        response.error("id", __("% is required.", __("Username"))).statusCode(404);
     }
     if (!stars) {
         response.error("stars", __("% is required.", __("Stars")));
